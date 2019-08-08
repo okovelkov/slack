@@ -2,23 +2,28 @@ package slack
 
 import (
 	"context"
+	"errors"
 	"net/url"
-	"time"
 )
 
 type Reminder struct {
-	ID         string    `json:"id"`
-	Creator    string    `json:"creator"`
-	User       string    `json:"user"`
-	Text       string    `json:"text"`
-	Recurring  bool      `json:"recurring"`
-	Time       time.Time `json:"time"`
-	CompleteTS int       `json:"complete_ts"`
+	ID         string   `json:"id"`
+	Creator    string   `json:"creator"`
+	User       string   `json:"user"`
+	Text       string   `json:"text"`
+	Recurring  bool     `json:"recurring"`
+	Time       JSONTime `json:"time"`
+	CompleteTS int      `json:"complete_ts"`
 }
 
 type reminderResp struct {
 	SlackResponse
 	Reminder Reminder `json:"reminder"`
+}
+
+type reminderListResp struct {
+	SlackResponse
+	Reminders []Reminder `json:"reminders"`
 }
 
 func (api *Client) doReminder(ctx context.Context, path string, values url.Values) (*Reminder, error) {
@@ -72,4 +77,23 @@ func (api *Client) DeleteReminder(id string) error {
 		return err
 	}
 	return response.Err()
+}
+
+// ListReminder lists existing reminders.
+//
+// See https://api.slack.com/methods/reminders.list
+func (api *Client) ListReminders() ([]Reminder, error) {
+	values := url.Values{
+		"token": {api.token},
+	}
+	response := &reminderListResp{}
+	if err := api.getMethod(context.Background(), "reminders.list", values, response); err != nil {
+		return nil, err
+	}
+
+	if !response.Ok {
+		return nil, errors.New(response.Error)
+	}
+
+	return response.Reminders, nil
 }
