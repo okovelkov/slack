@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"net/url"
 
-	"github.com/nlopes/slack/slackutilsx"
+	"github.com/okovelkov/slack/slackutilsx"
 )
 
 const (

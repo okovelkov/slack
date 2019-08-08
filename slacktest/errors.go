@@ -1,7 +1,7 @@
 package slacktest
 
 import (
-	"github.com/nlopes/slack/internal/errorsx"
+	"github.com/okovelkov/slack/internal/errorsx"
 )
 
 const (
